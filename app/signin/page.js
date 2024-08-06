@@ -36,7 +36,8 @@ const IntroParagraph = styled.p`
 `;
 
 export default function SignInPage() {
-  const { signInEmailPassword, signUpEmailPassword, error } = useUserAuth(); // Use context here
+  const { signInEmailPassword, signUpEmailPassword, githubSignIn, error } =
+    useUserAuth(); // Added githubSignIn
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isSignUp, setIsSignUp] = useState(false);
@@ -53,6 +54,16 @@ export default function SignInPage() {
         await signInEmailPassword(email, password);
         router.push("/home"); // Redirect to home page
       }
+    } catch (err) {
+      setLocalError(err.message);
+    }
+  };
+
+  const handleGithubSignIn = async () => {
+    setLocalError(null);
+    try {
+      await githubSignIn();
+      router.push("/home"); // Redirect to home page
     } catch (err) {
       setLocalError(err.message);
     }
@@ -75,6 +86,7 @@ export default function SignInPage() {
           setPassword={setPassword}
           setIsSignUp={setIsSignUp}
           handleSubmit={handleSubmit}
+          handleGithubSignIn={handleGithubSignIn} // Pass GitHub sign-in handler
         />
       </Header>
     </MainContainer>

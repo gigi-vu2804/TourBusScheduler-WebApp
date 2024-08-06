@@ -1,4 +1,3 @@
-// app/trips/calendar/page.js
 "use client";
 
 import React, { useState, useEffect } from "react";
@@ -19,10 +18,14 @@ const MainContainer = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 24px;
+  padding: 16px;
   background-color: #ffffff;
   min-height: 100vh;
   width: 100%;
+
+  @media (max-width: 768px) {
+    padding: 8px;
+  }
 `;
 
 const Header = styled.header`
@@ -33,8 +36,13 @@ const Header = styled.header`
 `;
 
 const Title = styled.h1`
-  font-size: 3rem;
+  font-size: 2rem;
   margin-bottom: 10px;
+  text-align: center;
+
+  @media (min-width: 768px) {
+    font-size: 3rem;
+  }
 `;
 
 const Tooltip = styled.div`
@@ -45,6 +53,11 @@ const Tooltip = styled.div`
   padding: 10px;
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
   z-index: 1000;
+  max-width: 300px;
+  font-size: 0.9rem;
+  @media (min-width: 768px) {
+    font-size: 1rem;
+  }
 `;
 
 const CloseButton = styled.button`
@@ -141,37 +154,40 @@ export default function CalendarPage() {
         <Title>Trips Calendar</Title>
       </Header>
       {error && <p style={{ color: "red" }}>{error}</p>}
-      <Calendar
-        localizer={localizer}
-        events={trips.map((trip) => ({
-          title: trip.trip_name,
-          pickup: trip.pickup,
-          destination: trip.destination,
-          client: trip.client_name,
-          start: new Date(trip.start_time),
-          end: new Date(trip.end_time),
-          vehicle_id: trip.vehicle_id,
-          driver_id: trip.driver_id,
-          note: trip.note,
-          allDay: false,
-          driver_name: drivers[trip.driver_id] || "Unknown Driver",
-          vehicle_plate: buses[trip.vehicle_id] || "Unknown Plate",
-        }))}
-        startAccessor="start"
-        endAccessor="end"
-        style={{ height: 600, width: "100%" }}
-        eventPropGetter={eventStyleGetter}
-        onSelectEvent={(event, e) => handleEventClick(event, e.nativeEvent)}
-        onDoubleClickEvent={handleEventClose}
-        selectable
-        views={["month", "week", "day", "agenda"]}
-        tooltipAccessor={() => null}
-        onMouseLeave={handleEventClose}
-        defaultView={Views.MONTH}
-        step={60}
-        showMultiDayTimes
-        toolbar
-      />
+      <div style={{ width: "100%", overflowX: "auto" }}>
+        <Calendar
+          localizer={localizer}
+          events={trips.map((trip) => ({
+            title: trip.trip_name,
+            pickup: trip.pickup,
+            destination: trip.destination,
+            client: trip.client_name,
+            start: new Date(trip.start_time),
+            end: new Date(trip.end_time),
+            vehicle_id: trip.vehicle_id,
+            driver_id: trip.driver_id,
+            note: trip.note,
+            allDay: false,
+            driver_name: drivers[trip.driver_id] || "Unknown Driver",
+            vehicle_plate: buses[trip.vehicle_id] || "Unknown Plate",
+          }))}
+          startAccessor="start"
+          endAccessor="end"
+          style={{ height: "70vh", width: "100%" }}
+          eventPropGetter={eventStyleGetter}
+          onSelectEvent={(event, e) => handleEventClick(event, e.nativeEvent)}
+          onDoubleClickEvent={handleEventClose}
+          selectable
+          views={["month", "week", "day", "agenda"]}
+          tooltipAccessor={() => null}
+          onMouseLeave={handleEventClose}
+          defaultView={Views.MONTH}
+          step={60}
+          showMultiDayTimes
+          toolbar
+          popup
+        />
+      </div>
       {tooltip && (
         <Tooltip style={{ top: tooltip.top + 10, left: tooltip.left + 10 }}>
           <CloseButton onClick={handleEventClose}>&times;</CloseButton>

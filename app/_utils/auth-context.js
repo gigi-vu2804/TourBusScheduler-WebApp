@@ -6,6 +6,8 @@ import {
   onAuthStateChanged,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
+  GithubAuthProvider,
+  signInWithPopup,
 } from "firebase/auth";
 import { auth } from "./firebase";
 
@@ -26,6 +28,16 @@ export const AuthContextProvider = ({ children }) => {
   const signInEmailPassword = async (email, password) => {
     try {
       await signInWithEmailAndPassword(auth, email, password);
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
+  const githubSignIn = async () => {
+    const provider = new GithubAuthProvider();
+    try {
+      const result = await signInWithPopup(auth, provider);
+      setUser(result.user);
     } catch (err) {
       setError(err.message);
     }
@@ -54,6 +66,7 @@ export const AuthContextProvider = ({ children }) => {
         signUpEmailPassword,
         signInEmailPassword,
         firebaseSignOut,
+        githubSignIn,
         error,
       }}
     >

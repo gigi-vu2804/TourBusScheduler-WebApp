@@ -64,8 +64,9 @@ export const getTrips = async () => {
  */
 export const updateTrip = async (tripId, updatedData) => {
   try {
-    const tripDoc = doc(tripsCollection, tripId);
-    await updateDoc(tripDoc, updatedData);
+    const tripDocRef = doc(tripsCollection, tripId);
+    await updateDoc(tripDocRef, updatedData);
+    console.log("Trip updated successfully");
   } catch (error) {
     console.error("Error updating trip: ", error);
     throw error;
@@ -78,8 +79,9 @@ export const updateTrip = async (tripId, updatedData) => {
  */
 export const deleteTrip = async (tripId) => {
   try {
-    const tripDoc = doc(tripsCollection, tripId);
-    await deleteDoc(tripDoc);
+    const tripDocRef = doc(tripsCollection, tripId);
+    await deleteDoc(tripDocRef);
+    console.log("Trip deleted successfully");
   } catch (error) {
     console.error("Error deleting trip: ", error);
     throw error;

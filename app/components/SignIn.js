@@ -12,10 +12,11 @@ export default function SignIn({
   setPassword,
   setIsSignUp,
   handleSubmit,
+  handleGithubSignIn, // Add this prop
 }) {
   return (
-    <div>
-      <form onSubmit={handleSubmit}>
+    <div className="flex flex-col items-center">
+      <form onSubmit={handleSubmit} className="mb-4">
         <input
           label="Email"
           type="email"
@@ -30,7 +31,7 @@ export default function SignIn({
           placeholder="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="p-1 my-2 mr-2  border-2 text-black rounded"
+          className="p-1 my-2 mr-2 border-2 text-black rounded"
         />
         <button
           type="submit"
@@ -47,6 +48,14 @@ export default function SignIn({
           ? "Already have an account? Sign In"
           : "Don't have an account? Sign Up"}
       </button>
+
+      <button
+        onClick={handleGithubSignIn} // Add click handler for GitHub sign-in
+        className="p-2 my-2 mr-2 text-sm rounded bg-black text-white hover:bg-gray-700"
+      >
+        Sign in with GitHub
+      </button>
+
       {(localError || globalError) && (
         <p className="text-red-500">{localError || globalError}</p>
       )}

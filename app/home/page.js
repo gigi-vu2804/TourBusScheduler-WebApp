@@ -1,11 +1,10 @@
-// app/home/page.js
 "use client";
 import React, { useEffect } from "react";
 import styled from "styled-components";
-import SignIn from "../components/SignIn";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useUserAuth } from "../_utils/auth-context";
+import Image from "next/image";
 
 const MainContainer = styled.main`
   display: flex;
@@ -59,7 +58,7 @@ export default function Home() {
   const handleSignOut = async () => {
     try {
       await firebaseSignOut();
-      router.push("/signin"); // sign in page redirect
+      router.push("/signin");
     } catch (error) {
       console.error(error);
     }
@@ -74,13 +73,19 @@ export default function Home() {
   return (
     <MainContainer>
       <Header>
+        <Image
+          src="/logo.png"
+          alt="TourBusScheduler Logo"
+          width={150}
+          height={150}
+        />
         <Title>Trips & Tour Bus Scheduler</Title>
         {user ? (
           <div>
             <IntroParagraph>
-              Welcome, {user.email}! <br></br>
-              <br></br>You can schedule and manage trips or <br></br>tour buses
-              for your company here. Happy scheduling!
+              Welcome, {user.displayName || user.email}! <br />
+              You can schedule and manage trips or tour buses for your company
+              here. Happy scheduling!
             </IntroParagraph>
             <StyledButton onClick={handleSignOut}>Logout</StyledButton>
           </div>

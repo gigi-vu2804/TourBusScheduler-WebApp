@@ -4,13 +4,11 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { useUserAuth } from "../../_utils/auth-context";
-import {
-  getTrips,
-  exportTripsToCSV,
-  exportTripsToExcel,
-} from "../../_services/trip-services";
+import { getTrips, deleteTrip } from "../../_services/trip-services";
 import { getDrivers } from "../../_services/driver-services";
 import { getBuses } from "../../_services/bus-services";
+import { FaEdit, FaTrashAlt } from "react-icons/fa";
+import EditTripModal from "../../components/EditTripModal"; // Import the modal
 
 const MainContainer = styled.main`
   display: flex;
@@ -21,25 +19,6 @@ const MainContainer = styled.main`
   padding: 24px;
   margin-left: 60px;
   background-color: #ffffff;
-`;
-
-const StyledButton = styled.button`
-  background-color: #4caf50;
-  border: none;
-  color: white;
-  padding: 10px 32px;
-  text-align: center;
-  text-decoration: none;
-  display: inline-block;
-  font-size: 16px;
-  margin: 4px 2px;
-  border-radius: 10px;
-  cursor: pointer;
-`;
-
-const ExportButton = styled(StyledButton)`
-  background-color: #007bff;
-  margin-top: 10px;
 `;
 
 const Header = styled.header`
@@ -75,6 +54,21 @@ const TableCell = styled.td`
   text-align: left;
   font-size: 16px;
   color: #333;
+  position: relative;
+`;
+
+const IconWrapper = styled.div`
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+`;
+
+const ActionIcon = styled.div`
+  cursor: pointer;
+  font-size: 18px;
+  &:hover {
+    color: #4caf50;
+  }
 `;
 
 const ErrorMessage = styled.p`
@@ -88,6 +82,7 @@ export default function ViewTrips() {
   const [drivers, setDrivers] = useState({});
   const [buses, setBuses] = useState({});
   const [error, setError] = useState(null);
+  const [editingTrip, setEditingTrip] = useState(null); // State to track editing
 
   useEffect(() => {
     const fetchData = async () => {
@@ -118,34 +113,36 @@ export default function ViewTrips() {
     fetchData();
   }, [user]);
 
-  const handleExportTripsExcel = async () => {
-    try {
-      const tripData = await getTrips();
-      exportTripsToExcel(
-        tripData.map((trip) => ({
-          ...trip,
-          vehicle_plate: buses[trip.vehicle_id] || "Unknown Plate",
-          driver_name: drivers[trip.driver_id] || "Unknown Driver",
-        }))
-      );
-    } catch (err) {
-      console.error("Error exporting trips:", err);
+  const handleEdit = (trip) => {
+    setEditingTrip(trip); // Set the trip to edit
+  };
+
+  const handleDelete = (tripId) => {
+    const confirmed = window.confirm(
+      "Are you sure you want to delete this trip?"
+    );
+    if (confirmed) {
+      deleteTrip(tripId)
+        .then(() => {
+          setTrips(trips.filter((trip) => trip.id !== tripId)); // Update state
+          alert("Trip deleted successfully.");
+        })
+        .catch((error) => {
+          console.error("Error deleting trip:", error);
+          setError("Failed to delete trip.");
+        });
     }
   };
 
-  const handleExportTripsCSV = async () => {
-    try {
-      const tripData = await getTrips();
-      exportTripsToCSV(
-        tripData.map((trip) => ({
-          ...trip,
-          vehicle_plate: buses[trip.vehicle_id] || "Unknown Plate",
-          driver_name: drivers[trip.driver_id] || "Unknown Driver",
-        }))
-      );
-    } catch (err) {
-      console.error("Error exporting trips:", err);
-    }
+  const handleModalClose = () => {
+    setEditingTrip(null); // Close the modal
+  };
+
+  const handleSave = (updatedTrip) => {
+    // Update the trips state with the new trip data
+    setTrips((prevTrips) =>
+      prevTrips.map((trip) => (trip.id === updatedTrip.id ? updatedTrip : trip))
+    );
   };
 
   return (
@@ -157,7 +154,7 @@ export default function ViewTrips() {
       <StyledTable>
         <thead>
           <tr>
-            <TableCell>Trip Name</TableCell>
+            <TableHeader>Trip Name</TableHeader>
             <TableHeader>Pickup</TableHeader>
             <TableHeader>Destination</TableHeader>
             <TableHeader>Vehicle Plate</TableHeader>
@@ -166,6 +163,7 @@ export default function ViewTrips() {
             <TableHeader>Start Time</TableHeader>
             <TableHeader>End Time</TableHeader>
             <TableHeader>Note</TableHeader>
+            <TableHeader>Actions</TableHeader>
           </tr>
         </thead>
         <tbody>
@@ -182,16 +180,27 @@ export default function ViewTrips() {
               </TableCell>
               <TableCell>{new Date(trip.end_time).toLocaleString()}</TableCell>
               <TableCell>{trip.note}</TableCell>
+              <TableCell>
+                <IconWrapper>
+                  <ActionIcon onClick={() => handleEdit(trip)}>
+                    <FaEdit />
+                  </ActionIcon>
+                  <ActionIcon onClick={() => handleDelete(trip.id)}>
+                    <FaTrashAlt />
+                  </ActionIcon>
+                </IconWrapper>
+              </TableCell>
             </tr>
           ))}
         </tbody>
       </StyledTable>
-      <ExportButton type="button" onClick={handleExportTripsExcel}>
-        Download Trips (Excel)
-      </ExportButton>
-      <ExportButton type="button" onClick={handleExportTripsCSV}>
-        Download Trips (CSV)
-      </ExportButton>
+      {editingTrip && (
+        <EditTripModal
+          trip={editingTrip}
+          onClose={handleModalClose}
+          onSave={handleSave}
+        />
+      )}
     </MainContainer>
   );
 }
