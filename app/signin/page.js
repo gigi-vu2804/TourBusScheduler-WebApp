@@ -14,7 +14,7 @@ const MainContainer = styled.main`
   min-height: 100vh;
   padding: 24px;
   margin-left: 60px;
-  background-color: #ffffff;
+  background-color: #df4c4c;
 `;
 
 const Header = styled.header`
